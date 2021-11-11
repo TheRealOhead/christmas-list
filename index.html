@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Owen's Christmas List</title>
+		<style>
+
+			@import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&display=swap');
+
+			* {
+				color: #000F55;
+				font-size: 40px;
+
+				font-family: 'Architects Daughter', cursive;
+			}
+
+			canvas {
+				position: fixed;
+
+				left: 0;
+				top:  0;
+
+				z-index: -999999;
+			}
+
+			.paper {
+				position: relative;
+				top: 0;
+				left: 0;
+
+				margin: auto;
+				padding: 40px;
+
+				width: 800px;
+
+				background: rgb(180,169,46);
+				background: repeating-linear-gradient(0deg, #449b84 0px, #449b84 1px, #fff699 1px, #fff699 30px);
+			}
+
+			ul {
+				list-style-type: '';
+			}
+
+			.red-line {
+				background-color: #b84a39;
+				position: absolute;
+
+				left: 60px;
+				top: 0;
+				height: 100%;
+				width: 2px;
+			}
+
+			li {
+				position: relative;
+			}
+		</style>
+	</head>
+	<body>
+		<canvas></canvas>
+		<div class="paper">
+			<ul>
+				<li>Handheld Wii kit</li>
+				<li>Mario Kart Wii (my copy broke)</li>
+				<li>My two front teeth</li>
+				<li>A hippopotamus</li>
+				<li>Yoooooouuuuuuuuuu</li>
+				<li>Warm human flesh</li>
+			</ul>
+			<div class="red-line"></div>
+		</div>
+		<script>
+			let items = document.getElementsByTagName('li');
+			for (let i = 0; i < items.length; i++) {
+				items[i].style.left = ((Math.random() - .5) * 12) + 'px';
+				items[i].style.top  = ((Math.random() - .5) * 12) + 'px';
+			};
+
+			let c = document.getElementsByTagName('canvas')[0];
+			let ctx = c.getContext('2d');
+
+			let image = new Image();
+			image.src = 'snowflake.png';
+
+			class Flake {
+				constructor() {
+					this.queuedForDeletion = false;
+
+					this.z = (Math.random() * 30 + 5); // Closer = smaller
+
+					this.r = 360 * Math.random();
+					this.vr = 20 * (Math.random() - .5);
+					this.x = (Math.random() * (c.width + 200)) - 100;
+					this.vx = 20 * (Math.random() - .5);
+					this.y = -50;
+					this.vy = 4;
+				}
+
+				draw() {
+					ctx.drawImage(image,this.x,this.y,image.width * this.z / 400,image.height * this.z / 400);
+				}
+
+				update() {
+					if (this.y > c.height + 50) {
+						this.queuedForDeletion = true;
+					};
+
+					this.x += this.vx * this.z / 100 + wind;
+					this.y += this.vy * this.z / 100;
+					this.r += this.vr;
+				}
+			};
+
+
+			let snowflakes = [];
+			let wind = 0;
+
+			let i = 0;
+			setInterval(()=>{
+				if (i % 3 == 0) {snowflakes.push(new Flake())};
+
+				wind = Math.sin(i / 200) * 1.5;
+
+				c.width = this.innerWidth;
+				c.height = this.innerHeight;
+
+				ctx.fillStyle = '#5e88a6';
+				ctx.fillRect(0,0,c.width,c.height);
+
+				snowflakes.forEach((flake)=>{
+					flake.update();
+				});
+
+				// Go thru and delete flakes queued for deletion
+				for (let flake = snowflakes.length - 1; flake >= 0; flake--) {
+					if (snowflakes[flake].queuedForDeletion) {
+						snowflakes.splice(flake,1);
+					};
+				};
+
+				snowflakes.forEach((flake)=>{
+					flake.draw();
+				});
+				i++;
+			},10);
+		</script>
+	</body>
+</html>
